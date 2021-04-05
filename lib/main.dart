@@ -4,10 +4,57 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:flutter_offline/flutter_offline.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+_launchURL(url) async {
+  if (await canLaunch(url)) {
+    await launch(url);
+  } else {
+    throw 'Could not launch $url';
+  }
+}
 
 void main() => runApp(MyApp());
 Color btnColor = Color(0xff03a9f3);
 Color bgColor = Color(0xffe9f4fc);
+
+Future<Position> _determinePosition() async {
+  bool serviceEnabled;
+  LocationPermission permission;
+
+  // Test if location services are enabled.
+  serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  if (!serviceEnabled) {
+    // Location services are not enabled don't continue
+    // accessing the position and request users of the
+    // App to enable the location services.
+    return Future.error('Location services are disabled.');
+  }
+
+  permission = await Geolocator.checkPermission();
+  if (permission == LocationPermission.denied) {
+    permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.deniedForever) {
+      // Permissions are denied forever, handle appropriately.
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    if (permission == LocationPermission.denied) {
+      // Permissions are denied, next time you could try
+      // requesting permissions again (this is also where
+      // Android's shouldShowRequestPermissionRationale
+      // returned true. According to Android guidelines
+      // your App should show an explanatory UI now.
+      return Future.error('Location permissions are denied');
+    }
+  }
+
+  // When we reach here, permissions are granted and we can
+  // continue accessing the position of the device.
+  return await Geolocator.getCurrentPosition();
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -27,7 +74,7 @@ class MyApp extends StatelessWidget {
                 ? MyHomePage()
                 : Center(
                     child: Image.asset(
-                      'assets/offline_blue.gif',
+                      'assets/icon/images/offline_blue.gif',
                       fit: BoxFit.cover,
                       width: 200.0,
                     ),
@@ -56,6 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+    _determinePosition();
     _onchanged =
         flutterWebviewPlugin.onStateChanged.listen((WebViewStateChanged state) {
       if (mounted) {
@@ -84,32 +132,29 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: WillPopScope(
-        onWillPop: () {
-          flutterWebviewPlugin.canGoBack().then((value) {
-            if (value) {
-              flutterWebviewPlugin.goBack();
-            } else {
-              exit(0);
-            }
-          });
-        },
-        child: WebviewScaffold(
+          onWillPop: () {
+            flutterWebviewPlugin.canGoBack().then((value) {
+              if (value) {
+                flutterWebviewPlugin.goBack();
+              } else {
+                exit(0);
+              }
+            });
+          },
+          child: WebviewScaffold(
             url: url,
             withJavascript: true,
             withZoom: false,
             hidden: true,
+            geolocationEnabled: true,
+            withLocalStorage: true,
             initialChild: Container(
               color: Colors.white,
               child: Center(
-                child: Text(
-                  'LOADING',
-                  style: TextStyle(
-                    color: btnColor,
-                  ),
-                ),
+                child: Image.asset('assets/icon/images/logo1.jpg'),
               ),
-            )),
-      ),
+            ),
+          )),
     );
   }
 }
