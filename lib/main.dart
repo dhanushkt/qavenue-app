@@ -7,14 +7,6 @@ import 'package:flutter_offline/flutter_offline.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-_launchURL(url) async {
-  if (await canLaunch(url)) {
-    await launch(url);
-  } else {
-    throw 'Could not launch $url';
-  }
-}
-
 void main() => runApp(MyApp());
 Color btnColor = Color(0xff03a9f3);
 Color bgColor = Color(0xffe9f4fc);
@@ -97,13 +89,16 @@ class _MyHomePageState extends State<MyHomePage> {
   String url = "https://qavenue.in/";
 
   final flutterWebviewPlugin = new FlutterWebviewPlugin();
+
   StreamSubscription<WebViewStateChanged>
       _onchanged; // here we checked the url state if it loaded or start Load or abort Load
+  StreamSubscription<String> _onUrlChanged;
 
   @override
   void initState() {
     super.initState();
     _determinePosition();
+
     _onchanged =
         flutterWebviewPlugin.onStateChanged.listen((WebViewStateChanged state) {
       if (mounted) {
@@ -130,6 +125,21 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    _onUrlChanged =
+        flutterWebviewPlugin.onUrlChanged.listen((String url) async {
+      print("navigating to...$url");
+      if (url.startsWith("mailto") ||
+          url.startsWith("tel") ||
+          url.startsWith("sms")) {
+        await flutterWebviewPlugin.stopLoading();
+        await flutterWebviewPlugin.goBack();
+        if (await canLaunch(url)) {
+          await launch(url);
+          return;
+        }
+        print("couldn't launch $url");
+      }
+    });
     return SafeArea(
       child: WillPopScope(
           onWillPop: () {
