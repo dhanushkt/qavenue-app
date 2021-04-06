@@ -10,7 +10,7 @@ import 'package:url_launcher/url_launcher.dart';
 void main() => runApp(MyApp());
 Color btnColor = Color(0xff03a9f3);
 Color bgColor = Color(0xffe9f4fc);
-
+String lasturl;
 Future<Position> _determinePosition() async {
   bool serviceEnabled;
   LocationPermission permission;
@@ -60,6 +60,7 @@ class MyApp extends StatelessWidget {
           ConnectivityResult connectivity,
           Widget child,
         ) {
+          print("$lasturl");
           final bool connected = connectivity != ConnectivityResult.none;
           return Container(
             child: connected
@@ -74,7 +75,14 @@ class MyApp extends StatelessWidget {
             color: bgColor,
           );
         },
-        child: MyHomePage(),
+        child: WebviewScaffold(
+          url: lasturl,
+          withJavascript: true,
+          withZoom: false,
+          hidden: true,
+          geolocationEnabled: true,
+          withLocalStorage: true,
+        ),
       ),
     );
   }
@@ -86,8 +94,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String url = "https://qavenue.in/";
-
+  String url;
   final flutterWebviewPlugin = new FlutterWebviewPlugin();
 
   StreamSubscription<WebViewStateChanged>
@@ -98,7 +105,11 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     _determinePosition();
-
+    if (lasturl == "" || lasturl == url) {
+      url = "https://qavenue.in";
+    } else {
+      url = lasturl;
+    }
     _onchanged =
         flutterWebviewPlugin.onStateChanged.listen((WebViewStateChanged state) {
       if (mounted) {
@@ -114,6 +125,37 @@ class _MyHomePageState extends State<MyHomePage> {
         }
       }
     });
+    _onUrlChanged =
+        flutterWebviewPlugin.onUrlChanged.listen((String url) async {
+      lasturl = url;
+      print("navigating to...$url");
+      print("navigating lat to...$lasturl");
+      if (url.startsWith("mailto") ||
+          url.startsWith("tel") ||
+          url.startsWith("sms") ||
+          url.contains("share")) {
+        await flutterWebviewPlugin.stopLoading();
+        await flutterWebviewPlugin.goBack();
+        if (await canLaunch(url)) {
+          await launch(url);
+          return;
+        }
+        if (url.startsWith("mailto") ||
+            url.startsWith("tel") ||
+            url.startsWith("sms") ||
+            url.contains("share")) {
+          WebviewScaffold(
+            url: lasturl,
+            withJavascript: true,
+            withZoom: false,
+            hidden: true,
+            geolocationEnabled: true,
+            withLocalStorage: true,
+          );
+        }
+        print("couldn't launch $url");
+      }
+    });
   }
 
   @override
@@ -125,21 +167,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    _onUrlChanged =
-        flutterWebviewPlugin.onUrlChanged.listen((String url) async {
-      print("navigating to...$url");
-      if (url.startsWith("mailto") ||
-          url.startsWith("tel") ||
-          url.startsWith("sms")) {
-        await flutterWebviewPlugin.stopLoading();
-        await flutterWebviewPlugin.goBack();
-        if (await canLaunch(url)) {
-          await launch(url);
-          return;
-        }
-        print("couldn't launch $url");
-      }
-    });
     return SafeArea(
       child: WillPopScope(
           onWillPop: () {
