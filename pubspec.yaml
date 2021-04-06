@@ -52,7 +52,7 @@ flutter_icons:
 # The following section is specific to Flutter.
 flutter:  
   assets:     
-    - assets/icon/images/logo1.jpg
+    - assets/icon/images/logo1.png
     - assets/icon/images/offline_blue.gif
 
   # The following line ensures that the Material Icons font is
