@@ -161,7 +161,7 @@ class _MyHomePageState extends State<MyHomePage> {
             initialChild: Container(
               color: Colors.white,
               child: Center(
-                child: Image.asset('assets/icon/images/logo1.jpg'),
+                child: Image.asset('assets/icon/images/logo1.png'),
               ),
             ),
           )),
