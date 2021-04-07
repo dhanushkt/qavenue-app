@@ -12,8 +12,13 @@ void main() => runApp(MyApp());
 Color btnColor = Color(0xff03a9f3);
 Color bgColor = Color(0xffe9f4fc);
 String lasturl;
+String shareurl;
 share() {
-  Share.share('Check out this product - $lasturl');
+  if (lasturl.contains('#share')) {
+    shareurl = lasturl.replaceAll("#share", "");
+  }
+  print("$shareurl");
+  Share.share('Check out this product - $shareurl');
 }
 
 Future<Position> _determinePosition() async {
