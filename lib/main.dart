@@ -6,11 +6,16 @@ import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:flutter_offline/flutter_offline.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:share/share.dart';
 
 void main() => runApp(MyApp());
 Color btnColor = Color(0xff03a9f3);
 Color bgColor = Color(0xffe9f4fc);
 String lasturl;
+share() {
+  Share.share('Check out this product - $lasturl');
+}
+
 Future<Position> _determinePosition() async {
   bool serviceEnabled;
   LocationPermission permission;
@@ -130,20 +135,24 @@ class _MyHomePageState extends State<MyHomePage> {
       lasturl = url;
       print("navigating to...$url");
       print("navigating lat to...$lasturl");
+      if (url.contains("#share")) {
+        print("navigating yes...$url");
+        share();
+        return;
+      }
       if (url.startsWith("mailto") ||
           url.startsWith("tel") ||
-          url.startsWith("sms") ||
-          url.contains("share")) {
+          url.startsWith("sms")) {
         await flutterWebviewPlugin.stopLoading();
         await flutterWebviewPlugin.goBack();
         if (await canLaunch(url)) {
           await launch(url);
           return;
         }
+
         if (url.startsWith("mailto") ||
             url.startsWith("tel") ||
-            url.startsWith("sms") ||
-            url.contains("share")) {
+            url.startsWith("sms")) {
           WebviewScaffold(
             url: lasturl,
             withJavascript: true,
