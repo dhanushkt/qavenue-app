@@ -7,6 +7,7 @@ import 'package:flutter_offline/flutter_offline.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:share/share.dart';
+import 'package:flutter/services.dart';
 
 void main() => runApp(MyApp());
 Color btnColor = Color(0xff03a9f3);
@@ -115,6 +116,10 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     _determinePosition();
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     if (lasturl == "" || lasturl == url) {
       url = "https://qavenue.in";
     } else {
@@ -147,7 +152,8 @@ class _MyHomePageState extends State<MyHomePage> {
       }
       if (url.startsWith("mailto") ||
           url.startsWith("tel") ||
-          url.startsWith("sms")) {
+          url.startsWith("sms") ||
+          url.startsWith("whatsapp")) {
         await flutterWebviewPlugin.stopLoading();
         await flutterWebviewPlugin.goBack();
         if (await canLaunch(url)) {
@@ -157,7 +163,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
         if (url.startsWith("mailto") ||
             url.startsWith("tel") ||
-            url.startsWith("sms")) {
+            url.startsWith("sms") ||
+            url.startsWith("whatsapp")) {
           WebviewScaffold(
             url: lasturl,
             withJavascript: true,
