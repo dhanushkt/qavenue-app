@@ -14,6 +14,7 @@ Color btnColor = Color(0xff03a9f3);
 Color bgColor = Color(0xffe9f4fc);
 String lasturl;
 String shareurl;
+
 share() {
   if (lasturl.contains('#share')) {
     shareurl = lasturl.replaceAll("#share", "");
