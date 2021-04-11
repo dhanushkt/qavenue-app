@@ -8,13 +8,19 @@ import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:share/share.dart';
 import 'package:flutter/services.dart';
+import 'package:uni_links/uni_links.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  initUniLinks();
+  runApp(MyApp());
+}
+
 Color btnColor = Color(0xff03a9f3);
 Color bgColor = Color(0xffe9f4fc);
 String lasturl;
-String shareurl;
-
+String lasturls;
+String shareurl = "";
 share() {
   if (lasturl.contains('#share')) {
     shareurl = lasturl.replaceAll("#share", "");
@@ -23,7 +29,10 @@ share() {
   Share.share('Check out this product - $shareurl');
 }
 
+StreamSubscription _sub;
+
 Future<Position> _determinePosition() async {
+  print("rin");
   bool serviceEnabled;
   LocationPermission permission;
 
@@ -58,6 +67,13 @@ Future<Position> _determinePosition() async {
   // When we reach here, permissions are granted and we can
   // continue accessing the position of the device.
   return await Geolocator.getCurrentPosition();
+}
+
+Future<Null> initUniLinks() async {
+  String initialLink = await getInitialLink();
+  print("checkingss $initialLink");
+  lasturls = initialLink.toString();
+  lasturl = lasturls + "#fromapp";
 }
 
 class MyApp extends StatelessWidget {
@@ -121,11 +137,7 @@ class _MyHomePageState extends State<MyHomePage> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
-    if (lasturl == "" || lasturl == url) {
-      url = "https://qavenue.in";
-    } else {
-      url = lasturl;
-    }
+
     _onchanged =
         flutterWebviewPlugin.onStateChanged.listen((WebViewStateChanged state) {
       if (mounted) {
@@ -137,10 +149,22 @@ class _MyHomePageState extends State<MyHomePage> {
           print("there is a problem");
         } else if (state.type == WebViewState.startLoad) {
           // if the url started loading
-          print("start loading");
+          print("start loading $url");
         }
       }
     });
+
+    if (lasturl == "" ||
+        lasturl == url ||
+        lasturl == null ||
+        lasturl == "null" ||
+        lasturl == "null#fromapp") {
+      print("$lasturls,s-$lasturl");
+      url = 'https://qavenue.in';
+    } else {
+      url = lasturl;
+    }
+
     _onUrlChanged =
         flutterWebviewPlugin.onUrlChanged.listen((String url) async {
       lasturl = url;
@@ -183,6 +207,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void dispose() {
     super.dispose();
+    _sub.cancel();
     flutterWebviewPlugin
         .dispose(); // disposing the webview widget to avoid any leaks
   }

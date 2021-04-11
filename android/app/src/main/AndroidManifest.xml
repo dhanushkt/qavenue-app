@@ -43,6 +43,7 @@
               <category android:name="android.intent.category.DEFAULT" />
               <category android:name="android.intent.category.BROWSABLE" />
               <data android:scheme="http" android:host="qavenue.in" />
+              <data android:scheme="unilinks" android:host="qavenue.in" />
               <data android:scheme="https" />
           </intent-filter>
         </activity>
