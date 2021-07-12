@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:255687221101:android:f01583d7c60a4985008464",
         "android_client_info": {
-          "package_name": "com.qavenue.in"
+          "package_name": "com.qavenue"
         }
       },
       "oauth_client": [
@@ -34,7 +34,7 @@
               "client_id": "255687221101-ifu3uq6ctfboqpensu9l2bae9ttv59i8.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.qavenue.in"
+                "bundle_id": "com.qavenue"
               }
             }
           ]
