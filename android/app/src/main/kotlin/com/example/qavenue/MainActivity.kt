@@ -1,4 +1,4 @@
-package com.example.qavenue
+package com.qavenue.in
 
 import io.flutter.embedding.android.FlutterActivity
 
