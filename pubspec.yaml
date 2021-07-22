@@ -12,17 +12,15 @@ dependencies:
   flutter:
     sdk: flutter   
   location: ^4.0.0-nullsafety.0
-  permission_handler: ^6.1.1
   app_settings: 4.1.0
   url_launcher: ^6.0.3
+  firebase_messaging: ^5.1.2 
   geolocator: ^7.0.1
   share: ^2.0.1
-  android_intent: ^2.0.0
-  pull_to_refresh: ^1.6.4
   cupertino_icons: ^1.0.0
   flutter_webview_plugin: ^0.3.0
   flutter_offline: ^0.3.0
-  uni_links: ^0.4.0
+  uni_links: ^0.5.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

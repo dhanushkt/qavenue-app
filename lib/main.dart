@@ -9,8 +9,10 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:share/share.dart';
 import 'package:flutter/services.dart';
 import 'package:uni_links/uni_links.dart';
+import 'package:qavenue/push_notifications.dart';
 
 void main() {
+  PushNotificationsManager().init();
   WidgetsFlutterBinding.ensureInitialized();
   initUniLinks();
   runApp(MyApp());
@@ -32,7 +34,6 @@ share() {
 StreamSubscription _sub;
 
 Future<Position> _determinePosition() async {
-  print("rin");
   bool serviceEnabled;
   LocationPermission permission;
 
